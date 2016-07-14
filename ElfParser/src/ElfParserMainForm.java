@@ -1,4 +1,7 @@
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import javax.swing.JFileChooser;
 
 /*
@@ -37,6 +40,8 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     btnClose = new javax.swing.JButton();
     tabContain = new javax.swing.JTabbedPane();
     tabOverview = new javax.swing.JPanel();
+    jScrollPane1 = new javax.swing.JScrollPane();
+    txtaText = new javax.swing.JTextArea();
     tabELFHeader = new javax.swing.JPanel();
     tabSHeaders = new javax.swing.JPanel();
     tabPHeaders = new javax.swing.JPanel();
@@ -104,15 +109,25 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         .addGap(30, 30, 30))
     );
 
+    txtaText.setColumns(20);
+    txtaText.setRows(5);
+    jScrollPane1.setViewportView(txtaText);
+
     javax.swing.GroupLayout tabOverviewLayout = new javax.swing.GroupLayout(tabOverview);
     tabOverview.setLayout(tabOverviewLayout);
     tabOverviewLayout.setHorizontalGroup(
       tabOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 560, Short.MAX_VALUE)
+      .addGroup(tabOverviewLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 540, Short.MAX_VALUE)
+        .addContainerGap())
     );
     tabOverviewLayout.setVerticalGroup(
       tabOverviewLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 422, Short.MAX_VALUE)
+      .addGroup(tabOverviewLayout.createSequentialGroup()
+        .addContainerGap()
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     tabContain.addTab("Overview", tabOverview);
@@ -224,10 +239,31 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
+  // function convert string input to hexa string
+  public String toHex(File file){
+    StringBuilder builder = new StringBuilder();
+    try {
+      FileInputStream fin = new FileInputStream(file);
+      byte[] buffer = new byte[1024];
+      int bytesRead = 0;
+      while((bytesRead = fin.read(buffer)) > -1)
+        for(int i = 0; i < bytesRead; i++)
+          builder.append(String.format("%02x", buffer[i] & 0xFF)).append(i != bytesRead - 1 ? " " : "");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return builder.toString();
+  }
+  
   private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
     // TODO add your handling code here:
     JFileChooser openFile = new JFileChooser();
     openFile.showOpenDialog(null);
+    File inputFile = openFile.getSelectedFile();
+    String inputFilePath = inputFile.getAbsolutePath();
+    String inputFileHex = toHex(inputFile);
+    System.out.println(inputFileHex);
+    txtaText.append(inputFileHex);
   }//GEN-LAST:event_btnOpenActionPerformed
 
   /**
@@ -272,6 +308,7 @@ public class ElfParserMainForm extends javax.swing.JFrame {
   private javax.swing.JButton btnReset;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
+  private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JPanel tabCapabilities;
   private javax.swing.JTabbedPane tabContain;
   private javax.swing.JPanel tabELFHeader;
@@ -280,5 +317,6 @@ public class ElfParserMainForm extends javax.swing.JFrame {
   private javax.swing.JPanel tabSHeaders;
   private javax.swing.JPanel tabScoring;
   private javax.swing.JPanel tabSymbols;
+  private javax.swing.JTextArea txtaText;
   // End of variables declaration//GEN-END:variables
 }
