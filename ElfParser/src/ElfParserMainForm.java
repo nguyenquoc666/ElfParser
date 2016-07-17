@@ -2,6 +2,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import static java.lang.Math.pow;
 import javax.swing.JFileChooser;
 
 /*
@@ -245,7 +246,7 @@ public class ElfParserMainForm extends javax.swing.JFrame {
   public static final byte constantElfHeaderLength = 52;
   
   // var of elf header
-  public String ei_mag = "";
+  public String ei_mag = "ELF";
   public byte ei_class = 0;
   public byte ei_data = 0;
   public byte ei_version = 0;
@@ -300,6 +301,19 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     }
     return builder.toString();
   }
+  // convert string hex  to int little endian
+  public int convertHex2IntLEB(String str){
+    int strLen = str.length();
+    int res = 0;
+    for (int i = 0; i < strLen ; i+=3){
+      int temp = 0;
+//      temp = Character.getNumericValue(str.charAt(i))*10 + Character.getNumericValue(str.charAt(i+1));
+      temp =  Integer.parseInt(str.substring(i, i+2), 16 );
+      res = (int) (res + temp*(pow(100, i/3)));
+    }
+//    res = Integer.parseInt("1f", 16 );
+    return res;
+  }
   
   // elf header process
   public void elfHeaderProc(String strElfHeaderInput){
@@ -343,6 +357,142 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     System.out.printf("\n" + shentsize);
     System.out.printf("\n" + shnum);
     System.out.printf("\n" + shstrndx);
+    switch (cla){
+      case "01 ": 
+        ei_class = 1;
+        break;
+      case "02 ":
+        ei_class = 2;
+        break;
+      default:
+        ei_class = 0;
+        break;
+    }
+    switch (data){
+      case "01 ": 
+        ei_data = 1;
+        break;
+      case "02 ":
+        ei_data = 2;
+        break;
+      default:
+        ei_data = 0;
+        break;
+    }
+    ei_version = Byte.parseByte(ver);
+    switch (osabi){
+      case "00 ":
+        ei_osabi = "System V";
+        break;
+      case "01 ":
+        ei_osabi = "HP-UX";
+        break;
+      case "02 ":
+        ei_osabi = "NetBSD";
+        break;
+      case "03 ":
+        ei_osabi = "Linux";
+        break;
+      case "06 ":
+        ei_osabi = "Solaris";
+        break;
+      case "07 ":
+        ei_osabi = "AIX";
+        break;
+      case "08 ":
+        ei_osabi = "IRIX";
+        break;
+      case "09 ":
+        ei_osabi = "FreeBSD";
+        break;
+      case "0c ":
+        ei_osabi = "OpenBSD";
+        break;
+      case "0d ":
+        ei_osabi = "	OpenVMS";
+        break;
+      case "0e ":
+        ei_osabi = "NSK operating system";
+        break;
+      case "0f ":
+        ei_osabi = "AROS";
+        break;
+      case "10 ":
+        ei_osabi = "Fenix OS";
+        break;
+      case "11 ":
+        ei_osabi = "CloudABI";
+        break;
+      case "53 ":
+        ei_osabi = "Sortix";
+        break;
+      default:
+        ei_osabi = "unknow";
+        break;
+    }
+    ei_abiver = Byte.parseByte(abiver);
+    ei_pad = Byte.parseByte(pad);
+    switch (type){
+      case "01 00 ":
+        e_type = "relocatable";
+        break;
+      case "02 00 ":
+        e_type = "executable";
+        break;
+      case "03 00 ":
+        e_type = "shared";
+        break;
+      case "04 00 ":
+        e_type = "respectively";
+        break;
+    }
+    switch (machine){
+      case "00" :
+        e_machine = "No specific instruction set";
+        break;
+      case "02 ":
+        e_machine = "SPARC";
+        break;
+      case "03 ":
+        e_machine = "x86";
+        break;
+      case "08 ":
+        e_machine = "MIPS";
+        break;
+      case "14 ":
+        e_machine = "PowerPC";
+        break;
+      case "28 ":
+        e_machine = "ARM";
+        break;
+      case "2a ":
+        e_machine = "SuperH";
+        break;
+      case "32 ":
+        e_machine = "IA-64";
+        break;
+      case "3e ":
+        e_machine = "x86-64";
+        break;
+      case "b7 ":
+        e_machine = "AArch64";
+        break;
+      default:
+        e_machine = "unknow";
+        break;
+    }
+    switch (version){
+      case "01 00 00 00 ": 
+        e_ver = 1;
+        break;
+      default:
+        e_ver = 0;
+        break;
+    }
+    e_entry = ("0x"+entry).trim();
+    
+    e_shnum = convertHex2IntLEB(shnum);
+    e_phnum = convertHex2IntLEB(phnum);
   }
   
   // program header process
@@ -358,6 +508,8 @@ public class ElfParserMainForm extends javax.swing.JFrame {
   }
   
   private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
+    //    test
+    
     // TODO add your handling code here:
     JFileChooser openFile = new JFileChooser();
     openFile.showOpenDialog(null);
