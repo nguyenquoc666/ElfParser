@@ -307,26 +307,24 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     int res = 0;
     for (int i = 0; i < strLen ; i+=3){
       int temp = 0;
-//      temp = Character.getNumericValue(str.charAt(i))*10 + Character.getNumericValue(str.charAt(i+1));
       temp =  Integer.parseInt(str.substring(i, i+2), 16 );
       res = (int) (res + temp*(pow(100, i/3)));
     }
-//    res = Integer.parseInt("1f", 16 );
     return res;
   }
   
   // elf header process
   public void elfHeaderProc(String strElfHeaderInput){
-    String mag =        strElfHeaderInput.substring(0, 3*3);
+    String mag =        strElfHeaderInput.substring(0, 3*4);
     String cla =        strElfHeaderInput.substring(3*4, 3*4+3*1);
     String data =       strElfHeaderInput.substring(3*5, 3*5+3*1);
-    String version =    strElfHeaderInput.substring(3*6, 3*6+3*1);
+    String ei_ver =    strElfHeaderInput.substring(3*6, 3*6+3*1);
     String osabi =      strElfHeaderInput.substring(3*7, 3*7+3*1);
     String abiver =     strElfHeaderInput.substring(3*8, 3*8+3*1);
     String pad =        strElfHeaderInput.substring(3*9, 3*9+3*7);
     String type =       strElfHeaderInput.substring(3*16, 3*16+3*2);
     String machine =    strElfHeaderInput.substring(3*18, 3*18+3*2);
-    String ver =        strElfHeaderInput.substring(3*20, 3*20+3*4);
+    String elf_ver =        strElfHeaderInput.substring(3*20, 3*20+3*4);
     String entry =      strElfHeaderInput.substring(3*24, 3*24+3*4);
     String phoff =      strElfHeaderInput.substring(3*28, 3*28+3*4);
     String shoff =      strElfHeaderInput.substring(3*32, 3*32+3*4);
@@ -337,16 +335,17 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     String shentsize =  strElfHeaderInput.substring(3*46, 3*46+3*2);
     String shnum =      strElfHeaderInput.substring(3*48, 3*48+3*2);
     String shstrndx =   strElfHeaderInput.substring(3*50, 3*50+3*2);
+    System.out.printf("\n ===========================================");
     System.out.printf("\n" + mag);
     System.out.printf("\n" + cla);
     System.out.printf("\n" + data);
-    System.out.printf("\n" + version);
+    System.out.printf("\n" + ei_ver);
     System.out.printf("\n" + osabi);
     System.out.printf("\n" + abiver);
     System.out.printf("\n" + pad);
     System.out.printf("\n" + type);
     System.out.printf("\n" + machine);
-    System.out.printf("\n" + ver);
+    System.out.printf("\n" + elf_ver);
     System.out.printf("\n" + entry);
     System.out.printf("\n" + phoff);
     System.out.printf("\n" + shoff);
@@ -357,6 +356,7 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     System.out.printf("\n" + shentsize);
     System.out.printf("\n" + shnum);
     System.out.printf("\n" + shstrndx);
+    
     switch (cla){
       case "01 ": 
         ei_class = 1;
@@ -379,7 +379,7 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         ei_data = 0;
         break;
     }
-    ei_version = Byte.parseByte(ver);
+    ei_version = Byte.parseByte(ei_ver.trim());
     switch (osabi){
       case "00 ":
         ei_osabi = "System V";
@@ -430,8 +430,8 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         ei_osabi = "unknow";
         break;
     }
-    ei_abiver = Byte.parseByte(abiver);
-    ei_pad = Byte.parseByte(pad);
+    ei_abiver = Byte.parseByte(abiver.trim());
+//    ei_pad = Byte.parseByte(pad.trim()); // unuse
     switch (type){
       case "01 00 ":
         e_type = "relocatable";
@@ -447,41 +447,41 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         break;
     }
     switch (machine){
-      case "00" :
+      case "00 00 " :
         e_machine = "No specific instruction set";
         break;
-      case "02 ":
+      case "02 00 ":
         e_machine = "SPARC";
         break;
-      case "03 ":
+      case "03 00 ":
         e_machine = "x86";
         break;
-      case "08 ":
+      case "08 00 ":
         e_machine = "MIPS";
         break;
-      case "14 ":
+      case "14 00 ":
         e_machine = "PowerPC";
         break;
-      case "28 ":
+      case "28 00 ":
         e_machine = "ARM";
         break;
-      case "2a ":
+      case "2a 00 ":
         e_machine = "SuperH";
         break;
-      case "32 ":
+      case "32 00 ":
         e_machine = "IA-64";
         break;
-      case "3e ":
+      case "3e 00 ":
         e_machine = "x86-64";
         break;
-      case "b7 ":
+      case "b7 00 ":
         e_machine = "AArch64";
         break;
       default:
         e_machine = "unknow";
         break;
     }
-    switch (version){
+    switch (elf_ver){
       case "01 00 00 00 ": 
         e_ver = 1;
         break;
@@ -489,10 +489,37 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         e_ver = 0;
         break;
     }
-    e_entry = ("0x"+entry).trim();
-    
-    e_shnum = convertHex2IntLEB(shnum);
+    e_entry = ("0x"+entry.replaceAll("\\s+","").trim());
+    e_phoff = convertHex2IntLEB(phoff);
+    e_shoff = convertHex2IntLEB(shoff);
+    e_flags = ("0x"+flags.replaceAll("\\s+","").trim());
+    e_ehsize = 52;
+    e_phentsize = 32;
     e_phnum = convertHex2IntLEB(phnum);
+    e_shentsize = 40;
+    e_shnum = convertHex2IntLEB(shnum);
+//
+    System.out.printf("\n ===========================================");
+    System.out.printf("\n" + ei_class);
+    System.out.printf("\n" + ei_data);
+    System.out.printf("\n" + ei_version);
+    System.out.printf("\n" + ei_osabi);
+    System.out.printf("\n" + ei_abiver);
+    System.out.printf("\n" + ei_pad);
+    System.out.printf("\n" + e_type);
+    System.out.printf("\n" + e_machine);
+    System.out.printf("\n" + e_ver);
+    System.out.printf("\n ===========================================");
+    System.out.printf("\n" + e_entry);
+    System.out.printf("\n" + e_phoff);
+    System.out.printf("\n" + e_shoff);
+    System.out.printf("\n" + e_flags);
+    System.out.printf("\n" + e_ehsize);
+    System.out.printf("\n" + e_phentsize);
+    System.out.printf("\n" + e_phnum);
+    System.out.printf("\n" + e_shentsize);
+    System.out.printf("\n" + e_shnum);
+    
   }
   
   // program header process
