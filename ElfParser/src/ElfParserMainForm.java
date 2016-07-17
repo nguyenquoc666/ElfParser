@@ -238,7 +238,53 @@ public class ElfParserMainForm extends javax.swing.JFrame {
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
-
+  
+  
+  // declare variables:
+  // constant
+  public static final byte constantElfHeaderLength = 52;
+  
+  // var of elf header
+  public String ei_mag = "";
+  public byte ei_class = 0;
+  public byte ei_data = 0;
+  public byte ei_version = 0;
+  public String ei_osabi = "";
+  public byte ei_abiver = 0;
+  public byte ei_pad = 0;
+  public String e_type = "";
+  public String e_machine = "";
+  public byte e_ver = 0;
+  public String e_entry = "";
+  public int e_phoff = 0;
+  public int e_shoff = 0;
+  public String e_flags = "";
+  public int e_ehsize = 0;
+  public int e_phentsize = 0;
+  public int e_phnum = 0;
+  public int e_shentsize = 0;
+  public int e_shnum = 0;
+  public int e_shstrndx = 0;
+  
+  // var of program header
+  public String p_type = "";
+  public int p_offset = 0;
+  public String vadrr = "";
+  public String p_paddr = "";
+  public int p_filesz = 0;
+  public int p_memsz = 0;
+  public String p_flags = "";
+  public byte p_align = 0;
+  
+  // var of section header
+  public String s_name = "";
+  public String s_type = "";
+  public String s_flags = "";
+  public String s_vaddr = "";
+  public int s_offset = 0;
+  public int s_size = 0;
+  public String link = "";
+  
   // function convert string input to hexa string
   public String toHex(File file){
     StringBuilder builder = new StringBuilder();
@@ -255,15 +301,74 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     return builder.toString();
   }
   
+  // elf header process
+  public void elfHeaderProc(String strElfHeaderInput){
+    String mag =        strElfHeaderInput.substring(0, 3*3);
+    String cla =        strElfHeaderInput.substring(3*4, 3*4+3*1);
+    String data =       strElfHeaderInput.substring(3*5, 3*5+3*1);
+    String version =    strElfHeaderInput.substring(3*6, 3*6+3*1);
+    String osabi =      strElfHeaderInput.substring(3*7, 3*7+3*1);
+    String abiver =     strElfHeaderInput.substring(3*8, 3*8+3*1);
+    String pad =        strElfHeaderInput.substring(3*9, 3*9+3*7);
+    String type =       strElfHeaderInput.substring(3*16, 3*16+3*2);
+    String machine =    strElfHeaderInput.substring(3*18, 3*18+3*2);
+    String ver =        strElfHeaderInput.substring(3*20, 3*20+3*4);
+    String entry =      strElfHeaderInput.substring(3*24, 3*24+3*4);
+    String phoff =      strElfHeaderInput.substring(3*28, 3*28+3*4);
+    String shoff =      strElfHeaderInput.substring(3*32, 3*32+3*4);
+    String flags =      strElfHeaderInput.substring(3*36, 3*36+3*4);
+    String ehsize =     strElfHeaderInput.substring(3*40, 3*40+3*2);
+    String phentsize =  strElfHeaderInput.substring(3*42, 3*42+3*2);
+    String phnum =      strElfHeaderInput.substring(3*44, 3*44+3*2);
+    String shentsize =  strElfHeaderInput.substring(3*46, 3*46+3*2);
+    String shnum =      strElfHeaderInput.substring(3*48, 3*48+3*2);
+    String shstrndx =   strElfHeaderInput.substring(3*50, 3*50+3*2);
+    System.out.printf("\n" + mag);
+    System.out.printf("\n" + cla);
+    System.out.printf("\n" + data);
+    System.out.printf("\n" + version);
+    System.out.printf("\n" + osabi);
+    System.out.printf("\n" + abiver);
+    System.out.printf("\n" + pad);
+    System.out.printf("\n" + type);
+    System.out.printf("\n" + machine);
+    System.out.printf("\n" + ver);
+    System.out.printf("\n" + entry);
+    System.out.printf("\n" + phoff);
+    System.out.printf("\n" + shoff);
+    System.out.printf("\n" + flags);
+    System.out.printf("\n" + ehsize);
+    System.out.printf("\n" + phentsize);
+    System.out.printf("\n" + phnum);
+    System.out.printf("\n" + shentsize);
+    System.out.printf("\n" + shnum);
+    System.out.printf("\n" + shstrndx);
+  }
+  
+  // program header process
+  
+  // section header process
+  
+  // process
+  public void parse(String strElfInput){
+    String strElfHeader = strElfInput.substring(0, constantElfHeaderLength*3);
+    System.out.printf(strElfHeader);
+    
+    elfHeaderProc(strElfHeader);
+  }
+  
   private void btnOpenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnOpenActionPerformed
     // TODO add your handling code here:
     JFileChooser openFile = new JFileChooser();
     openFile.showOpenDialog(null);
     File inputFile = openFile.getSelectedFile();
+//    File inputFile = new File("C:\\Users\\Quoc\\Desktop\\text.o");
+    
     String inputFilePath = inputFile.getAbsolutePath();
     String inputFileHex = toHex(inputFile);
     System.out.println(inputFileHex);
     txtaText.append(inputFileHex);
+    parse(inputFileHex);
   }//GEN-LAST:event_btnOpenActionPerformed
 
   /**
