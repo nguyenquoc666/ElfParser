@@ -301,15 +301,24 @@ public class ElfParserMainForm extends javax.swing.JFrame {
     }
     return builder.toString();
   }
-  // convert string hex  to int little endian
-  public int convertHex2IntLEB(String str){
-    int strLen = str.length();
-    int res = 0;
-    for (int i = 0; i < strLen ; i+=3){
-      int temp = 0;
-      temp =  Integer.parseInt(str.substring(i, i+2), 16 );
-      res = (int) (res + temp*(pow(100, i/3)));
+  // revert string hex LEB address to dec address
+  public String revertLED2BED(String str){
+    String strInput = str.replaceAll("\\s+","").trim();
+    String strRevert = "";
+    int strLen = strInput.length();
+    for (int i = 0; i < strLen/2 ; i++){
+      String temp =  strInput.substring(i*2, i*2+2);
+      strRevert = temp + strRevert;
     }
+    while(Character.valueOf(strRevert.charAt(0)).equals('0')){
+      strRevert = strRevert.substring(1);
+    }
+    return strRevert;
+  }
+  
+  // convert string hex  to int little endian
+  public int convertHexLED2Int(String str){
+    int res = Integer.parseInt(revertLED2BED(str), 16 );
     return res;
   }
   
@@ -489,37 +498,41 @@ public class ElfParserMainForm extends javax.swing.JFrame {
         e_ver = 0;
         break;
     }
-    e_entry = ("0x"+entry.replaceAll("\\s+","").trim());
-    e_phoff = convertHex2IntLEB(phoff);
-    e_shoff = convertHex2IntLEB(shoff);
+    e_entry = ("0x"+revertLED2BED(entry));
+    e_phoff = convertHexLED2Int(phoff);
+    e_shoff = convertHexLED2Int(shoff);
     e_flags = ("0x"+flags.replaceAll("\\s+","").trim());
     e_ehsize = 52;
     e_phentsize = 32;
-    e_phnum = convertHex2IntLEB(phnum);
+    e_phnum = convertHexLED2Int(phnum);
     e_shentsize = 40;
-    e_shnum = convertHex2IntLEB(shnum);
+    e_shnum = convertHexLED2Int(shnum);
 //
     System.out.printf("\n ===========================================");
-    System.out.printf("\n" + ei_class);
-    System.out.printf("\n" + ei_data);
-    System.out.printf("\n" + ei_version);
-    System.out.printf("\n" + ei_osabi);
-    System.out.printf("\n" + ei_abiver);
-    System.out.printf("\n" + ei_pad);
-    System.out.printf("\n" + e_type);
-    System.out.printf("\n" + e_machine);
-    System.out.printf("\n" + e_ver);
+    System.out.printf("\n class: " + ei_class);
+    System.out.printf("\n data: " + ei_data);
+    System.out.printf("\n elf version: " + ei_version);
+    System.out.printf("\n OSABI: " + ei_osabi);
+    System.out.printf("\n ABI version: " + ei_abiver);
+    System.out.printf("\n pad: " + ei_pad);
+    System.out.printf("\n type: " + e_type);
+    System.out.printf("\n machine: " + e_machine);
+    System.out.printf("\n version: " + e_ver);
+    System.out.printf("\n entrypoint: " + e_entry);
+    System.out.printf("\n ph offset: " + e_phoff);
+    System.out.printf("\n sh offset: " + e_shoff);
+    System.out.printf("\n flags: " + e_flags);
+    System.out.printf("\n ehsize: " + e_ehsize);
+    System.out.printf("\n phentsize: " + e_phentsize);
+    System.out.printf("\n phnum: " + e_phnum);
+    System.out.printf("\n shentsize: " + e_shentsize);
+    System.out.printf("\n shnum:" + e_shnum);
     System.out.printf("\n ===========================================");
-    System.out.printf("\n" + e_entry);
-    System.out.printf("\n" + e_phoff);
-    System.out.printf("\n" + e_shoff);
-    System.out.printf("\n" + e_flags);
-    System.out.printf("\n" + e_ehsize);
-    System.out.printf("\n" + e_phentsize);
-    System.out.printf("\n" + e_phnum);
-    System.out.printf("\n" + e_shentsize);
-    System.out.printf("\n" + e_shnum);
-    
+//    System.out.printf("\n" + convertHexLED2Int("34 00 00 00 "));
+//    System.out.printf("\n" + convertHexLED2Int("d4 17 00 00 "));
+//    System.out.printf("\n" + convertHexLED2Int("09 00 "));
+//    System.out.printf("\n" + convertHexLED2Int("0f 00 "));
+//    System.out.printf("\n" + revertLED2BED("10 83 04 08"));
   }
   
   // program header process
