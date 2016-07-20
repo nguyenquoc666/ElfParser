@@ -295,7 +295,8 @@ public class ElfParserMainForm extends javax.swing.JFrame {
       int bytesRead = 0;
       while((bytesRead = fin.read(buffer)) > -1)
         for(int i = 0; i < bytesRead; i++)
-          builder.append(String.format("%02x", buffer[i] & 0xFF)).append(i != bytesRead - 1 ? " " : "");
+//          builder.append(String.format("%02x", buffer[i] & 0xFF)).append(i != bytesRead - 1 ? " " : "");
+          builder.append(String.format("%02x", buffer[i] & 0xFF)).append(" ");
     } catch (IOException e) {
       e.printStackTrace();
     }
