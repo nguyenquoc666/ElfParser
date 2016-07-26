@@ -257,14 +257,14 @@ public class ElfParserMainForm extends javax.swing.JFrame {
   public String e_machine = "";
   public byte e_ver = 0;
   public String e_entry = "";
-  public int e_phoff = 0;
-  public int e_shoff = 0;
+  public long e_phoff = 0;
+  public long e_shoff = 0;
   public String e_flags = "";
   public int e_ehsize = 0;
   public int e_phentsize = 0;
-  public int e_phnum = 0;
+  public long e_phnum = 0;
   public int e_shentsize = 0;
-  public int e_shnum = 0;
+  public long e_shnum = 0;
   public int e_shstrndx = 0;
   
   // var of program header
@@ -311,15 +311,15 @@ public class ElfParserMainForm extends javax.swing.JFrame {
       String temp =  strInput.substring(i*2, i*2+2);
       strRevert = temp + strRevert;
     }
-    while(Character.valueOf(strRevert.charAt(0)).equals('0')){
+    while((strRevert.length() > 1) && (strRevert.charAt(0) == '0')){
       strRevert = strRevert.substring(1);
     }
     return strRevert;
   }
   
   // convert string hex  to int little endian
-  public int convertHexLED2Int(String str){
-    int res = Integer.parseInt(revertLED2BED(str), 16 );
+  public long convertHexLED2Int(String str){
+    long res = Long.parseLong(revertLED2BED(str), 16 );
     return res;
   }
   
